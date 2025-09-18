@@ -57,89 +57,85 @@
     </section>
 
     <script>
-      const API_URL = "http://localhost:5000/api";
+     const API_URL = "http://localhost:5000/api";
 
-      // Load student registrations
-      async function loadStudents() {
-        const res = await fetch(`${API_URL}/registrations`);
-        const students = await res.json();
-        const table = document.getElementById("studentTable");
-        table.innerHTML = "";
+// Load student registrations
+async function loadStudents() {
+  try {
+    const res = await fetch(`${API_URL}/registrations`);
+    const students = await res.json();
+    const table = document.getElementById("studentTable");
+    table.innerHTML = "";
 
-        students.forEach((stu) => {
-          table.innerHTML += `
-      <tr>
-        <td class="py-3 px-4">${stu.name}</td>
-        <td class="py-3 px-4">${stu.email}</td>
-        <td class="py-3 px-4">${stu.eventId ? stu.eventId.title : "N/A"}</td>
-        <td class="py-3 px-4">
-          <button onclick="deleteStudent('${
-            stu._id
-          }')" class="bg-red-500 text-white px-3 py-1 rounded">Delete</button>
-        </td>
-      </tr>
-    `;
-        });
-      }
+    if (students.length === 0) {
+      table.innerHTML = `
+        <tr>
+          <td colspan="4" class="text-center py-4">No registrations found</td>
+        </tr>
+      `;
+      return;
+    }
 
-      // Delete a student registration
-      // Show messages in a common element
-      function showMessage(text, type = "info") {
-        const msgEl = document.getElementById("actionMessage"); // create a new div for this
-        msgEl.textContent = text;
-        msgEl.className =
-          (type === "success"
-            ? "text-green-600"
-            : type === "error"
-            ? "text-red-600"
-            : "text-blue-600") + " text-center mt-2";
-      }
+    students.forEach((stu) => {
+      table.innerHTML += `
+        <tr class="hover:bg-gray-100">
+          <td class="py-3 px-4">${stu.name}</td>
+          <td class="py-3 px-4">${stu.email}</td>
+          <td class="py-3 px-4">${stu.eventId ? stu.eventId.title : "N/A"}</td>
+          <td class="py-3 px-4">
+            <button onclick="deleteStudent('${stu._id}')" class="bg-red-500 text-white px-3 py-1 rounded">Delete</button>
+          </td>
+        </tr>
+      `;
+    });
+  } catch (err) {
+    showMessage("❌ Failed to load students: " + err.message, "error");
+  }
+}
 
-      // Delete one student (no confirm)
-      async function deleteStudent(id) {
-        showMessage("Deleting student...", "info");
-        try {
-          const res = await fetch(`${API_URL}/registrations/${id}`, {
-            method: "DELETE",
-          });
-          if (!res.ok) throw new Error("Failed to delete student");
+// Show messages
+function showMessage(text, type = "info") {
+  const msgEl = document.getElementById("actionMessage");
+  msgEl.textContent = text;
+  msgEl.className =
+    (type === "success"
+      ? "text-green-600"
+      : type === "error"
+      ? "text-red-600"
+      : "text-blue-600") + " text-center mt-2";
+}
 
-          showMessage("✅ Registration deleted!", "success");
-          loadStudents();
-        } catch (err) {
-          showMessage("❌ " + err.message, "error");
-        }
-      }
+// Delete one student
+async function deleteStudent(id) {
+  showMessage("Deleting student...", "info");
+  try {
+    const res = await fetch(`${API_URL}/registrations/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error("Failed to delete student");
 
-      // Delete all registrations (no confirm)
-      async function deleteMany() {
-        if (!confirm("Are you sure you want to delete this event?")) return;
-        try {
-          const res = await fetch(`${API_URL}/registrations?confirm=true`, {
-            method: "DELETE",
-          });
-          if (!res.ok) throw new Error("Failed to delete registrations");
+    showMessage("✅ Registration deleted!", "success");
+    loadStudents();
+  } catch (err) {
+    showMessage("❌ " + err.message, "error");
+  }
+}
 
-          showMessage("✅ All registrations deleted!", "success");
-          loadStudents();
-        } catch (err) {
-          showMessage("❌ " + err.message, "error");
-        }
-      }
+// Delete all students
+async function deleteMany() {
+  if (!confirm("Are you sure you want to delete all registrations?")) return;
+  try {
+    const res = await fetch(`${API_URL}/registrations?confirm=true`, { method: "DELETE" });
+    if (!res.ok) throw new Error("Failed to delete registrations");
 
-      //register
-      const messageEl = document.getElementById("formMessage");
-      if (res.ok) {
-        messageEl.textContent = "✅ Registration successful!";
-        messageEl.className = "text-green-600 text-center mt-2";
-        e.target.reset();
-      } else {
-        messageEl.textContent =
-          "❌ " + (data.message || "Registration failed.");
-        messageEl.className = "text-red-600 text-center mt-2";
-      }
+    showMessage("✅ All registrations deleted!", "success");
+    loadStudents();
+  } catch (err) {
+    showMessage("❌ " + err.message, "error");
+  }
+}
 
-      loadStudents();
+// Initial load
+loadStudents();
+
     </script>
   </body>
 </html>

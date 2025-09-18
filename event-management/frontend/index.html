@@ -26,6 +26,7 @@
         <form
           id="registerForm"
           class="space-y-4 bg-white shadow-md p-6 rounded"
+          enctype="multipart/form-data"
         >
           <input
             type="text"
@@ -47,6 +48,37 @@
             class="w-full border px-4 py-2 rounded"
             required
           ></select>
+
+          <!-- Image Upload -->
+          <label class="block relative">
+            <span class="text-gray-700">Upload Profile Image</span>
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              id="imageUpload"
+              required
+              class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 mt-2"
+              onchange="previewImage(event)"
+            />
+            <!-- Preview Container -->
+            <div id="previewContainer" class="relative mt-2 w-32 h-32 hidden">
+              <img
+                id="preview"
+                class="rounded w-32 h-32 object-cover"
+                src=""
+                alt="Image Preview"
+              />
+              <button
+                type="button"
+                onclick="removeImage()"
+                class="absolute top-0 right-0 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700"
+              >
+                ×
+              </button>
+            </div>
+          </label>
+
           <button class="w-full bg-indigo-600 text-white py-2 rounded">
             Register
           </button>
@@ -111,6 +143,31 @@
             messageEl.className = "text-red-600 text-center mt-2";
           }
         });
+
+      
+
+      //image preview 
+      function previewImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function () {
+          const previewContainer = document.getElementById("previewContainer");
+          const preview = document.getElementById("preview");
+          preview.src = reader.result;
+          previewContainer.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function removeImage() {
+        const previewContainer = document.getElementById("previewContainer");
+        const imageUpload = document.getElementById("imageUpload");
+        imageUpload.value = ""; // Clear file input
+        previewContainer.style.display = "none"; // Hide preview
+        document.getElementById("preview").src = "";
+      }
 
       loadEvents();
     </script>
