@@ -14,4 +14,3 @@ event-management/
 │── frontend/
 │   └── index.html
 │   └── tailwind.css
-|
