@@ -1,5 +1,5 @@
 event-management/
-│── backend/<br>
+│── backend/
 │   ├── server.js
 │   ├── models/
 │   │   └── Event.js
